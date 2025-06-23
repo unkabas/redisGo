@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/unkabas/redisGo/config"
 	"io"
 	"net/http"
@@ -21,8 +22,15 @@ func getWeather(c *gin.Context) {
 	city := c.Param("city")
 
 	value, err := config.Rdb.Get(config.Ctx, city).Result()
+	if err == redis.Nil {
+		c.JSON(404, gin.H{
+			"message": "redis not connected",
+		})
+	}
 	if err != nil {
-		fmt.Println("city wasnt found")
+		c.JSON(500, gin.H{
+			"message": "something wrong",
+		})
 	} else {
 		fmt.Println("city found")
 		c.JSON(200, gin.H{
@@ -33,26 +41,32 @@ func getWeather(c *gin.Context) {
 	link := os.Getenv("weatherUrl") + city + "&appid=" + os.Getenv("apiKey") + "&units=metric"
 	data, err := http.Get(link)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(500, gin.H{
 			"message": "fuck",
 		})
 		return
 	}
 	body, err := io.ReadAll(data.Body)
 	if err != nil {
+		c.JSON(404, gin.H{
+			"message": err,
+		})
 		fmt.Println("Error reading response body:", err)
 		return
 	}
 	var weather Weather
 	err = json.Unmarshal(body, &weather)
 	if err != nil {
+		c.JSON(404, gin.H{
+			"message": err,
+		})
 		fmt.Println("Error unmarshalling JSON:", err)
 		return
 	}
 
 	err = config.Rdb.Set(config.Ctx, city, weather.Main.Temp, 100*time.Second).Err()
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(500, gin.H{
 			"message": "redis error",
 		})
 		return
