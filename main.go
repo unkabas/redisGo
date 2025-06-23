@@ -43,8 +43,8 @@ func getWeather(c *gin.Context) {
 	})
 }
 func main() {
-	config.loadEnv()
-	r := gin.Default()
+	config.
+		r := gin.Default()
 
 	r.GET("/weather/:city", getWeather)
 	r.Run(":8080")
