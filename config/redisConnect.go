@@ -2,24 +2,23 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"github.com/redis/go-redis/v9"
 )
 
-var ctx *context.Context
-var rdb *redis.Client
+var Ctx = context.Background()
+var Rdb *redis.Client
 
 func RedisConnect() {
-
-	ctx := context.Background()
-	rdb := redis.NewClient(&redis.Options{
+	Rdb = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // No password set
 		DB:       0,  // Use default DB
 		Protocol: 2,  // Connection protocol
 	})
-	err := rdb.HSet(ctx, "city", "", "").Err()
+	pong, err := Rdb.Ping(Ctx).Result()
 	if err != nil {
-		panic(err)
+		fmt.Println("error")
 	}
-
+	fmt.Println(pong)
 }
