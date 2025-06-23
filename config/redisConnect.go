@@ -2,11 +2,14 @@ package config
 
 import (
 	"context"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 )
 
+var ctx *context.Context
+var rdb *redis.Client
+
 func RedisConnect() {
+
 	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -14,9 +17,9 @@ func RedisConnect() {
 		DB:       0,  // Use default DB
 		Protocol: 2,  // Connection protocol
 	})
-	var err error
+	err := rdb.HSet(ctx, "city", "", "").Err()
 	if err != nil {
-		fmt.Println("Something wrong with ", ctx, "or", rdb)
+		panic(err)
 	}
 
 }

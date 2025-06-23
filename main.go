@@ -17,7 +17,6 @@ type Weather struct {
 }
 
 func getWeather(c *gin.Context) {
-
 	city := c.Param("city")
 	link := os.Getenv("weatherUrl") + city + "&appid=" + os.Getenv("apiKey") + "&units=metric"
 	data, err := http.Get(link)
@@ -41,10 +40,12 @@ func getWeather(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": weather.Main.Temp,
 	})
+
 }
 func main() {
 	config.RedisConnect()
 	config.LoadEnv()
+
 	r := gin.Default()
 
 	r.GET("/weather/:city", getWeather)
