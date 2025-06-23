@@ -43,6 +43,7 @@ func getWeather(c *gin.Context) {
 	})
 }
 func main() {
+	config.RedisConnect()
 	config.LoadEnv()
 	r := gin.Default()
 
