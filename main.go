@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	"github.com/unkabas/redisGo/config"
 	"io"
 	"net/http"
@@ -22,11 +21,7 @@ func getWeather(c *gin.Context) {
 	city := c.Param("city")
 
 	value, err := config.Rdb.Get(config.Ctx, city).Result()
-	if err == redis.Nil {
-		c.JSON(404, gin.H{
-			"message": "redis not connected",
-		})
-	}
+
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "something wrong",
@@ -34,7 +29,7 @@ func getWeather(c *gin.Context) {
 	} else {
 		fmt.Println("city found")
 		c.JSON(200, gin.H{
-			"message": value,
+			city: value,
 		})
 	}
 
@@ -71,10 +66,6 @@ func getWeather(c *gin.Context) {
 		})
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"message": weather.Main.Temp,
-	})
 
 }
 func main() {
